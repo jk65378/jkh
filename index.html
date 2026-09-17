@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>스마트 주차 예측 & 검색 시스템</title>
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --accent-blue: #38bdf8;
+      --safe-green: #22c55e;
+      --warning-orange: #f59e0b;
+      --danger-red: #ef4444;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+      color: var(--text-sub);
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 검색 박스 스타일 */
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .search-input-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input-box i.search-icon {
+      position: absolute;
+      left: 16px;
+      color: var(--accent-blue);
+      font-size: 1.1rem;
+    }
+
+    .search-input-box input {
+      width: 100%;
+      padding: 14px 16px 14px 48px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input-box input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+
+    /* 카테고리 태그 필터 */
+    .tag-container {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 12px;
+    }
+
+    .tag-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-sub);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tag-btn.active {
+      background: var(--accent-blue);
+      color: #0f172a;
+      border-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    /* 검색 드롭다운 결과 목록 */
+    .search-results-list {
+      max-height: 220px;
+      overflow-y: auto;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .search-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+
+    .search-item:last-child {
+      border-bottom: none;
+    }
+
+    .search-item:hover {
+      background: rgba(56, 189, 248, 0.15);
+    }
+
+    .search-item-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .search-item-cat {
+      font-size: 0.75rem;
+      color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.1);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    /* 선택된 장소 표시 카드 */
+    .selected-place-card {
+      display: none;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid var(--accent-blue);
+      border-radius: 12px;
+      padding: 14px 16px;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .selected-place-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .selected-place-info i {
+      color: var(--accent-blue);
+      font-size: 1.2rem;
+    }
+
+    /* 조건 입력 폼 */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    select, input[type="date"] {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    /* 날씨 셀렉트 버튼 */
+    .weather-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .weather-btn {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px;
+      color: var(--text-sub);
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .weather-btn.active {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.1);
+    }
+
+    /* 제출 버튼 */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #38bdf8, #3b82f6);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+
+    .submit-btn:hover {
+      opacity: 0.9;
+    }
+
+    /* 결과 섹션 */
+    #result-section {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .gauge-card {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .prob-number {
+      font-size: 3rem;
+      font-weight: 800;
+      margin: 8px 0;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 6px;
+      transition: width 0.8s ease-out;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    /* 대안 주차장 카드 */
+    .alt-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .alt-card {
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .alt-info h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .alt-info p {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>스마트 주차 예측</h1>
+      <p>목적지를 검색하고 실시간 주차 가능성을 확인해보세요.</p>
+    </header>
+
+    <!-- [1단계] 장소 검색 및 선택 -->
+    <div class="card">
+      <div class="section-title">
+        <i class="fa-solid fa-magnifying-glass" style="color: var(--accent-blue);"></i>
+        1. 목적지 검색
+      </div>
+
+      <!-- 카테고리 태그 필터 -->
+      <div class="tag-container">
+        <button class="tag-btn active" onclick="filterCategory('all', this)">전체</button>
+        <button class="tag-btn" onclick="filterCategory('themePark', this)">🎡 테마파크/관광</button>
+        <button class="tag-btn" onclick="filterCategory('mall', this)">🛍️ 백화점/쇼핑몰</button>
+        <button class="tag-btn" onclick="filterCategory('hotspot', this)">🏙️ 핫플레이스</button>
+        <button class="tag-btn" onclick="filterCategory('hospital', this)">🏥 대형병원</button>
+      </div>
+
+      <!-- 실시간 검색 입력창 -->
+      <div class="search-wrapper">
+        <div class="search-input-box">
+          <i class="fa-solid fa-search search-icon"></i>
+          <input type="text" id="searchInput" placeholder="장소 검색 (예: 에버랜드, 더현대, 강남역, 성수동)..." oninput="handleSearch()">
+        </div>
+      </div>
+
+      <!-- 검색 연관 결과 목록 -->
+      <div id="searchResults" class="search-results-list"></div>
+
+      <!-- 선택된 장소 표시 뷰 -->
+      <div id="selectedPlaceCard" class="selected-place-card">
+        <div class="selected-place-info">
+          <i class="fa-solid fa-location-dot"></i>
+          <div>
+            <strong id="selectedPlaceName" style="font-size: 1.05rem;">-</strong>
+            <div id="selectedPlaceCat" style="font-size: 0.75rem; color: var(--text-sub);">선택됨</div>
+          </div>
+        </div>
+        <span style="font-size: 0.8rem; color: var(--accent-blue); font-weight: 600;">선택 완료 ✓</span>
+      </div>
+    </div>
+
+    <!-- [2단계] 방문 조건 입력 -->
+    <div class="card">
+      <div class="section-title">
+        <i class="fa-solid fa-calendar-days" style="color: var(--accent-blue);"></i>
+        2. 방문 조건 설정
+      </div>
+
+      <!-- 날짜 및 시간 선택 -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label for="dateInput">방문 날짜</label>
+          <input type="date" id="dateInput">
+        </div>
+        <div class="form-group">
+          <label for="timeSelect">도착 시간대</label>
+          <select id="timeSelect">
+            <option value="09">오전 09:00 - 11:00</option>
+            <option value="12" selected>오후 12:00 - 14:00</option>
+            <option value="15">오후 15:00 - 17:00</option>
+            <option value="18">오후 18:00 - 20:00</option>
+            <option value="21">오후 21:00 이후</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 날씨 선택 -->
+      <div class="form-group">
+        <label>예상 날씨</label>
+        <div class="weather-grid">
+          <button class="weather-btn active" onclick="selectWeather('sunny', this)">
+            <i class="fa-solid fa-sun"></i> 맑음
+          </button>
+          <button class="weather-btn" onclick="selectWeather('rain', this)">
+            <i class="fa-solid fa-cloud-rain"></i> 비
+          </button>
+          <button class="weather-btn" onclick="selectWeather('snow', this)">
+            <i class="fa-regular fa-snowflake"></i> 눈
+          </button>
+          <button class="weather-btn" onclick="selectWeather('cloud', this)">
+            <i class="fa-solid fa-cloud"></i> 흐림
+          </button>
+        </div>
+      </div>
+
+      <button class="submit-btn" onclick="calculateProbability()">
+        주차 가능성 계산하기
+      </button>
+    </div>
+
+    <!-- [3단계] 예측 결과 출력 -->
+    <div id="result-section">
+      <div class="card gauge-card">
+        <span class="status-badge" id="statusBadge">계산 중...</span>
+        <div class="prob-number" id="probText">0%</div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+        <p id="resultMsg" style="color: var(--text-sub); font-size: 0.9rem; margin-top: 4px;"></p>
+      </div>
+
+      <!-- 대안 주차장 섹션 (확률 50% 이하 시 자동 노출) -->
+      <div class="card alt-section" id="altSection" style="display: none;">
+        <div class="section-title" style="color: var(--warning-orange);">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          만차 위험! 인근 대체 주차장 추천
+        </div>
+        <div id="altList"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // 1. 대용량 데이터베이스 (서울 및 경기 주요 스팟 20선)
+    const placesDatabase = [
+      // 테마파크/관광지
+      { 
+        id: "tp1", category: "themePark", catLabel: "테마파크/관광", name: "에버랜드", baseProb: 75,
+        alts: [
+          { name: "포곡읍 공영주차장", time: "도보 12분", fee: "무료", addr: "경기 용인시 처인구 포곡읍 포곡로 212" },
+          { name: "둔전역 공영주차장", time: "경전철 2정거장", fee: "1,000원/시간", addr: "경기 용인시 처인구 포곡읍 둔전리 110" }
+        ]
+      },
+      { 
+        id: "tp2", category: "themePark", catLabel: "테마파크/관광", name: "롯데월드 (잠실)", baseProb: 40,
+        alts: [
+          { name: "잠실역 환승공영주차장", time: "도보 5분", fee: "4,800원/시간", addr: "서울 송파구 올림픽로 300" },
+          { name: "송파구청 주차장", time: "도보 8분", fee: "3,000원/시간", addr: "서울 송파구 올림픽로 326" }
+        ]
+      },
+      { 
+        id: "tp3", category: "themePark", catLabel: "테마파크/관광", name: "서울랜드 / 국립현대미술관", baseProb: 65,
+        alts: [
+          { name: "대공원역 대형주차장", time: "도보 10분", fee: "4,000원/일", addr: "경기 과천시 대공원광장로 102" }
+        ]
+      },
+      { 
+        id: "tp4", category: "themePark", catLabel: "테마파크/관광", name: "경복궁 / 광화문", baseProb: 35,
+        alts: [
+          { name: "열린송현 녹지광장 주차장", time: "도보 7분", fee: "3,000원/시간", addr: "서울 종로구 송현동 48-9" },
+          { name: "종로타워 주차장", time: "도보 10분", fee: "6,000원/시간", addr: "서울 종로구 종로 51" }
+        ]
+      },
+      { 
+        id: "tp5", category: "themePark", catLabel: "테마파크/관광", name: "남산서울타워 (케이블카)", baseProb: 30,
+        alts: [
+          { name: "남산동 공영주차장", time: "도보 8분", fee: "3,000원/시간", addr: "서울 중구 퇴계로20길 24" },
+          { name: "시그너스빌 주차장", time: "도보 10분", fee: "4,000원/시간", addr: "서울 중구 퇴계로 100" }
+        ]
+      },
+
+      // 백화점/쇼핑몰
+      { 
+        id: "ml1", category: "mall", catLabel: "백화점/쇼핑몰", name: "더현대 서울 (여의도)", baseProb: 30,
+        alts: [
+          { name: "여의도 파크원 주차장", time: "도보 3분", fee: "6,000원/시간", addr: "서울 영등포구 여의대로 108" },
+          { name: "여의도 한강공원 3주차장", time: "도보 10분", fee: "2,000원/시간", addr: "서울 영등포구 여의동로 280" }
+        ]
+      },
+      { 
+        id: "ml2", category: "mall", catLabel: "백화점/쇼핑몰", name: "스타필드 코엑스몰 (삼성역)", baseProb: 45,
+        alts: [
+          { name: "탄천 종합운동장 주차장", time: "도보 12분", fee: "1,200원/시간", addr: "서울 송파구 탄천동로 36" },
+          { name: "봉은사 주차장", time: "도보 6분", fee: "3,000원/시간", addr: "서울 강남구 봉은사로 531" }
+        ]
+      },
+      { 
+        id: "ml3", category: "mall", catLabel: "백화점/쇼핑몰", name: "신세계백화점 강남점", baseProb: 35,
+        alts: [
+          { name: "반포천 복개 공영주차장", time: "도보 7분", fee: "3,000원/시간", addr: "서울 서초구 반포동 118-3" },
+          { name: "고속터미널 광장주차장", time: "도보 5분", fee: "4,000원/시간", addr: "서울 서초구 신반포로 194" }
+        ]
+      },
+      { 
+        id: "ml4", category: "mall", catLabel: "백화점/쇼핑몰", name: "롯데월드몰 (잠실)", baseProb: 35,
+        alts: [
+          { name: "잠실역 환승주차장", time: "도보 4분", fee: "4,800원/시간", addr: "서울 송파구 올림픽로 300" }
+        ]
+      },
+      { 
+        id: "ml5", category: "mall", catLabel: "백화점/쇼핑몰", name: "타임스퀘어 (영등포)", baseProb: 40,
+        alts: [
+          { name: "영등포본동 공영주차장", time: "도보 8분", fee: "1,500원/시간", addr: "서울 영등포구 영등포로 212" }
+        ]
+      },
+
+      // 서울 핫플레이스
+      { 
+        id: "hs1", category: "hotspot", catLabel: "핫플레이스", name: "성수동 연무장길", baseProb: 25,
+        alts: [
+          { name: "성수2가1동 공영주차장", time: "도보 6분", fee: "1,200원/시간", addr: "서울 성동구 성수이로 118" },
+          { name: "뚝섬 유원지 주차장", time: "도보 12분", fee: "1,000원/시간", addr: "서울 성동구 자양동 704" }
+        ]
+      },
+      { 
+        id: "hs2", category: "hotspot", catLabel: "핫플레이스", name: "강남역 거리", baseProb: 25,
+        alts: [
+          { name: "역삼문화공원 주차장", time: "도보 8분", fee: "3,600원/시간", addr: "서울 강남구 테헤란로7길 21" },
+          { name: "플래티넘 타워 주차장", time: "도보 4분", fee: "5,000원/시간", addr: "서울 서초구 서초대로397" }
+        ]
+      },
+      { 
+        id: "hs3", category: "hotspot", catLabel: "핫플레이스", name: "홍대 버스킹거리 / 걷고싶은거리", baseProb: 30,
+        alts: [
+          { name: "서교동 공영주차장", time: "도보 5분", fee: "4,800원/시간", addr: "서울 마포구 어울마당로 123" },
+          { name: "동교동 삼거리 주차장", time: "도보 8분", fee: "3,000원/시간", addr: "서울 마포구 양화로 183" }
+        ]
+      },
+      { 
+        id: "hs4", category: "hotspot", catLabel: "핫플레이스", name: "명동 거리", baseProb: 35,
+        alts: [
+          { name: "남산동 공영주차장", time: "도보 6분", fee: "3,000원/시간", addr: "서울 중구 퇴계로20길 24" }
+        ]
+      },
+      { 
+        id: "hs5", category: "hotspot", catLabel: "핫플레이스", name: "여의도 한강공원", baseProb: 30,
+        alts: [
+          { name: "여의도역 빌딩 민영주차장", time: "도보 10분", fee: "4,000원/시간", addr: "서울 영등포구 여의나루로 60" }
+        ]
+      },
+      { 
+        id: "hs6", category: "hotspot", catLabel: "핫플레이스", name: "압구정 로데오 / 도산공원", baseProb: 20,
+        alts: [
+          { name: "도산공원 노상 공영주차장", time: "도보 3분", fee: "4,000원/시간", addr: "서울 강남구 도산대로45길 20" }
+        ]
+      },
+
+      // 대형병원 / 기타
+      { 
+        id: "hp1", category: "hospital", catLabel: "대형병원", name: "서울아산병원 (풍납동)", baseProb: 50,
+        alts: [
+          { name: "풍납동 공영주차장", time: "도보 10분", fee: "1,200원/시간", addr: "서울 송파구 풍납동 252" }
+        ]
+      },
+      { 
+        id: "hp2", category: "hospital", catLabel: "대형병원", name: "신촌 세브란스병원", baseProb: 50,
+        alts: [
+          { name: "창천교회 주차장", time: "도보 6분", fee: "4,000원/시간", addr: "서울 서대문구 연세로5가길 3" }
+        ]
+      },
+      { 
+        id: "hp3", category: "hospital", catLabel: "대형병원", name: "삼성서울병원 (일원동)", baseProb: 55,
+        alts: [
+          { name: "일원역 탄천 공영주차장", time: "도보 10분", fee: "1,200원/시간", addr: "서울 강남구 일원동 4-12" }
+        ]
+      },
+      { 
+        id: "hp4", category: "hospital", catLabel: "대형병원", name: "서울대학교병원 (혜화동)", baseProb: 45,
+        alts: [
+          { name: "대학로 방송통신대 주차장", time: "도보 7분", fee: "3,000원/시간", addr: "서울 종로구 대학로 86" }
+        ]
+      }
+    ];
+
+    // 변수 상태
+    let selectedCategory = 'all';
+    let selectedPlaceObj = null;
+    let selectedWeather = 'sunny';
+
+    // 초기화
+    window.onload = () => {
+      document.getElementById('dateInput').value = new Date().toISOString().substring(0, 10);
+      renderSearchResults(); // 처음에는 전체/기본 데이터 출력
+    };
+
+    // 카테고리 태그 필터 변경
+    function filterCategory(category, btnEl) {
+      selectedCategory = category;
+      document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('active'));
+      btnEl.classList.add('active');
+      renderSearchResults();
+    }
+
+    // 실시간 검색 처리
+    function handleSearch() {
+      renderSearchResults();
+    }
+
+    // 검색 결과 목록 그리기
+    function renderSearchResults() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const resultsContainer = document.getElementById('searchResults');
+      
+      // 검색어 및 카테고리 필터링
+      const filtered = placesDatabase.filter(item => {
+        const matchesCategory = (selectedCategory === 'all' || item.category === selectedCategory);
+        const matchesQuery = item.name.toLowerCase().includes(query) || item.catLabel.includes(query);
+        return matchesCategory && matchesQuery;
+      });
+
+      resultsContainer.innerHTML = '';
+
+      if (filtered.length === 0) {
+        resultsContainer.innerHTML = `<div style="padding:16px; text-align:center; color:var(--text-sub); font-size:0.85rem;">검색 결과가 없습니다.</div>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'search-item';
+        div.innerHTML = `
+          <span class="search-item-title">${item.name}</span>
+          <span class="search-item-cat">${item.catLabel}</span>
+        `;
+        div.onclick = () => selectPlace(item);
+        resultsContainer.appendChild(div);
+      });
+    }
+
+    // 장소 선택 이벤트
+    function selectPlace(item) {
+      selectedPlaceObj = item;
+      
+      // UI 업데이트
+      document.getElementById('selectedPlaceName').textContent = item.name;
+      document.getElementById('selectedPlaceCat').textContent = item.catLabel;
+      document.getElementById('selectedPlaceCard').style.display = 'flex';
+      
+      // 검색창 텍스트 변경
+      document.getElementById('searchInput').value = item.name;
+    }
+
+    // 날씨 선택
+    function selectWeather(weather, btnElement) {
+      selectedWeather = weather;
+      document.querySelectorAll('.weather-btn').forEach(btn => btn.classList.remove('active'));
+      btnElement.classList.add('active');
+    }
+
+    // [계산 로직]
+    function calculateProbability() {
+      if (!selectedPlaceObj) {
+        alert('목적지를 검색창에서 선택해주세요!');
+        return;
+      }
+
+      const dateVal = new Date(document.getElementById('dateInput').value);
+      const timeVal = parseInt(document.getElementById('timeSelect').value);
+
+      let probability = selectedPlaceObj.baseProb;
+
+      // 1. 주말 변수 (-20%)
+      const day = dateVal.getDay();
+      if (day === 0 || day === 6) {
+        probability -= 20;
+      }
+
+      // 2. 피크 시간대 (12시~15시) (-15%)
+      if (timeVal >= 12 && timeVal <= 15) {
+        probability -= 15;
+      }
+
+      // 3. 날씨 영향
+      if (selectedWeather === 'rain' || selectedWeather === 'snow') {
+        if (selectedPlaceObj.category === 'mall') probability -= 15; // 실내 몰 몰림
+        if (selectedPlaceObj.category === 'themePark') probability += 15; // 테마파크 감소
+      }
+
+      // 최소 10% ~ 최대 95% 보정
+      probability = Math.max(10, Math.min(95, probability));
+
+      displayResult(probability, selectedPlaceObj);
+    }
+
+    // 결과 UI 출력
+    function displayResult(prob, place) {
+      const resultSection = document.getElementById('result-section');
+      const probText = document.getElementById('probText');
+      const progressBar = document.getElementById('progressBar');
+      const statusBadge = document.getElementById('statusBadge');
+      const resultMsg = document.getElementById('resultMsg');
+      const altSection = document.getElementById('altSection');
+      const altList = document.getElementById('altList');
+
+      resultSection.style.display = 'flex';
+      resultSection.scrollIntoView({ behavior: 'smooth' });
+
+      probText.textContent = prob + '%';
+      progressBar.style.width = prob + '%';
+
+      if (prob >= 70) {
+        progressBar.style.backgroundColor = 'var(--safe-green)';
+        statusBadge.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
+        statusBadge.style.color = 'var(--safe-green)';
+        statusBadge.textContent = '원활';
+        resultMsg.textContent = '주차 공간이 넉넉할 것으로 예상됩니다.';
+        altSection.style.display = 'none';
+      } else if (prob > 50) {
+        progressBar.style.backgroundColor = 'var(--warning-orange)';
+        statusBadge.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
+        statusBadge.style.color = 'var(--warning-orange)';
+        statusBadge.textContent = '보통';
+        resultMsg.textContent = '주차가 가능하지만 약간의 대기가 발생할 수 있습니다.';
+        altSection.style.display = 'none';
+      } else {
+        // 50% 이하: 만차 위험 경고 및 대안 출력
+        progressBar.style.backgroundColor = 'var(--danger-red)';
+        statusBadge.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+        statusBadge.style.color = 'var(--danger-red)';
+        statusBadge.textContent = '만차 위험';
+        resultMsg.textContent = '주차 공간이 부족할 확률이 높습니다! 인근 대안 주차장을 이용하세요.';
+        
+        altList.innerHTML = '';
+        place.alts.forEach(alt => {
+          const card = document.createElement('div');
+          card.className = 'alt-card';
+          card.innerHTML = `
+            <div class="alt-info">
+              <h4>${alt.name}</h4>
+              <p>${alt.time} • 요금: ${alt.fee}</p>
+            </div>
+            <button class="copy-btn" onclick="copyAddress('${alt.addr}')">
+              <i class="fa-regular fa-copy"></i> 주소 복사
+            </button>
+          `;
+          altList.appendChild(card);
+        });
+        altSection.style.display = 'flex';
+      }
+    }
+
+    // 주소 복사
+    function copyAddress(addr) {
+      navigator.clipboard.writeText(addr).then(() => {
+        alert('주소가 복사되었습니다:\n' + addr);
+      });
+    }
+  </script>
+</body>
+</html>

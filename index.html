@@ -1,302 +1,430 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="navy">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>스마트 주차 예측 & 검색 시스템</title>
-  <!-- Google Fonts & FontAwesome Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <title>PARK AI - 서울 주차 가능성 예측 & 대안 추천</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
-    :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --card-border: #334155;
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
-      --accent-blue: #38bdf8;
-      --safe-green: #22c55e;
-      --warning-orange: #f59e0b;
-      --danger-red: #ef4444;
-      --radius: 16px;
+    /* Theme 1: White & Navy (Default Classic) */
+    :root[data-theme="navy"] {
+      --bg-primary: linear-gradient(135deg, #0a1128 0%, #101f42 45%, #1e3a8a 100%);
+      --bg-card: rgba(255, 255, 255, 0.96);
+      --bg-input: #f1f5f9;
+      --border-color: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --header-text: #ffffff;
+      --header-subtext: #93c5fd;
+      --brand-navy: #1e3a8a;
+      --brand-accent: #2563eb;
+      --card-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.3);
+      
+      --status-safe-bg: #dcfce7;
+      --status-safe-text: #166534;
+      --status-safe-bar: #22c55e;
+
+      --status-warn-bg: #fef3c7;
+      --status-warn-text: #92400e;
+      --status-warn-bar: #f59e0b;
+
+      --status-danger-bg: #fee2e2;
+      --status-danger-text: #991b1b;
+      --status-danger-bar: #ef4444;
+    }
+
+    /* Theme 2: White & Green (Eco Fresh) */
+    :root[data-theme="green"] {
+      --bg-primary: linear-gradient(135deg, #064e3b 0%, #047857 45%, #059669 100%);
+      --bg-card: rgba(255, 255, 255, 0.96);
+      --bg-input: #f0fdf4;
+      --border-color: #bbf7d0;
+      --text-primary: #064e3b;
+      --text-secondary: #374151;
+      --header-text: #ffffff;
+      --header-subtext: #a7f3d0;
+      --brand-navy: #047857;
+      --brand-accent: #10b981;
+      --card-shadow: 0 20px 35px -10px rgba(4, 120, 87, 0.3);
+
+      --status-safe-bg: #dcfce7;
+      --status-safe-text: #166534;
+      --status-safe-bar: #22c55e;
+
+      --status-warn-bg: #fef3c7;
+      --status-warn-text: #92400e;
+      --status-warn-bar: #f59e0b;
+
+      --status-danger-bg: #fee2e2;
+      --status-danger-text: #991b1b;
+      --status-danger-bar: #ef4444;
+    }
+
+    /* Theme 3: Dark Mode (Modern Black) */
+    :root[data-theme="dark"] {
+      --bg-primary: linear-gradient(135deg, #090d16 0%, #111827 50%, #1f2937 100%);
+      --bg-card: #1f2937;
+      --bg-input: #111827;
+      --border-color: #374151;
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --header-text: #f9fafb;
+      --header-subtext: #60a5fa;
+      --brand-navy: #3b82f6;
+      --brand-accent: #60a5fa;
+      --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+
+      --status-safe-bg: rgba(34, 197, 94, 0.18);
+      --status-safe-text: #4ade80;
+      --status-safe-bar: #22c55e;
+
+      --status-warn-bg: rgba(245, 158, 11, 0.18);
+      --status-warn-text: #fbbf24;
+      --status-warn-bar: #f59e0b;
+
+      --status-danger-bg: rgba(239, 68, 68, 0.18);
+      --status-danger-text: #f87171;
+      --status-danger-bar: #ef4444;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
     }
 
     body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
+      background: var(--bg-primary);
+      background-attachment: fixed;
+      color: var(--text-primary);
       display: flex;
       justify-content: center;
       min-height: 100vh;
-      padding: 40px 20px;
+      padding: 30px 16px;
     }
 
-    .container {
+    .app-container {
       width: 100%;
-      max-width: 640px;
+      max-width: 600px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 20px;
     }
 
     header {
-      text-align: center;
-      margin-bottom: 8px;
-    }
-
-    header h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-bottom: 8px;
-      background: linear-gradient(135deg, #38bdf8, #818cf8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    header p {
-      color: var(--text-sub);
-      font-size: 0.95rem;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 24px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-    }
-
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* 검색 박스 스타일 */
-    .search-wrapper {
-      position: relative;
-      margin-bottom: 16px;
-    }
-
-    .search-input-box {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .search-input-box i.search-icon {
-      position: absolute;
-      left: 16px;
-      color: var(--accent-blue);
-      font-size: 1.1rem;
-    }
-
-    .search-input-box input {
-      width: 100%;
-      padding: 14px 16px 14px 48px;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      color: var(--text-main);
-      font-size: 1rem;
-      outline: none;
-      transition: all 0.2s;
-    }
-
-    .search-input-box input:focus {
-      border-color: var(--accent-blue);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-    }
-
-    /* 카테고리 태그 필터 */
-    .tag-container {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      margin-bottom: 12px;
-    }
-
-    .tag-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
-      color: var(--text-sub);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-
-    .tag-btn.active {
-      background: var(--accent-blue);
-      color: #0f172a;
-      border-color: var(--accent-blue);
-      font-weight: 600;
-    }
-
-    /* 검색 드롭다운 결과 목록 */
-    .search-results-list {
-      max-height: 220px;
-      overflow-y: auto;
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .search-item {
-      padding: 12px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: background 0.2s;
+      padding: 4px 4px 12px 4px;
     }
 
-    .search-item:last-child {
-      border-bottom: none;
-    }
-
-    .search-item:hover {
-      background: rgba(56, 189, 248, 0.15);
-    }
-
-    .search-item-title {
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    .search-item-cat {
-      font-size: 0.75rem;
-      color: var(--accent-blue);
-      background: rgba(56, 189, 248, 0.1);
-      padding: 2px 8px;
-      border-radius: 6px;
-    }
-
-    /* 선택된 장소 표시 카드 */
-    .selected-place-card {
-      display: none;
-      background: rgba(56, 189, 248, 0.1);
-      border: 1px solid var(--accent-blue);
-      border-radius: 12px;
-      padding: 14px 16px;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 12px;
-    }
-
-    .selected-place-info {
+    .brand-logo {
       display: flex;
       align-items: center;
       gap: 10px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--header-text);
     }
 
-    .selected-place-info i {
-      color: var(--accent-blue);
-      font-size: 1.2rem;
+    .brand-logo i {
+      color: var(--header-subtext);
+      font-size: 1.6rem;
     }
 
-    /* 조건 입력 폼 */
-    .form-group {
+    .region-badge {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      color: var(--header-subtext);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .settings-btn {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: var(--header-text);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .settings-btn:hover {
+      transform: rotate(45deg);
+      transition: transform 0.3s ease;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .page-step {
       display: flex;
       flex-direction: column;
+      gap: 16px;
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 16px 44px 16px 48px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: var(--brand-navy);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    }
+
+    .search-box i.search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1rem;
+      cursor: pointer;
+      display: none;
+      padding: 4px;
+    }
+
+    .error-msg {
+      display: none;
+      color: #ef4444;
+      font-size: 0.83rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 10px;
+      align-items: center;
       gap: 8px;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chip-section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-top: 6px;
+      margin-bottom: 6px;
+    }
+
+    .chip-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
       margin-bottom: 16px;
     }
 
-    .form-group label {
-      font-size: 0.85rem;
-      color: var(--text-sub);
+    .chip {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .chip:hover {
+      color: var(--brand-navy);
+      border-color: var(--brand-navy);
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .filter-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
     }
 
     select, input[type="date"] {
       width: 100%;
-      padding: 12px 16px;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--card-border);
+      padding: 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
       border-radius: 10px;
-      color: var(--text-main);
-      font-size: 0.95rem;
+      color: var(--text-primary);
+      font-size: 0.9rem;
       outline: none;
+      font-weight: 600;
     }
 
-    /* 날씨 셀렉트 버튼 */
-    .weather-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-
-    .weather-btn {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 10px;
-      color: var(--text-sub);
-      cursor: pointer;
-      font-size: 0.85rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      transition: all 0.2s;
-    }
-
-    .weather-btn.active {
-      border-color: var(--accent-blue);
-      color: var(--accent-blue);
-      background: rgba(56, 189, 248, 0.1);
-    }
-
-    /* 제출 버튼 */
     .submit-btn {
       width: 100%;
       padding: 16px;
-      background: linear-gradient(135deg, #38bdf8, #3b82f6);
-      color: white;
+      background: var(--brand-navy);
+      color: #ffffff;
       border: none;
-      border-radius: 12px;
-      font-size: 1rem;
+      border-radius: 14px;
+      font-size: 1.05rem;
       font-weight: 700;
       cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
     }
 
     .submit-btn:hover {
-      opacity: 0.9;
+      opacity: 0.93;
+      transform: translateY(-1px);
     }
 
-    /* 결과 섹션 */
-    #result-section {
+    /* Loading Page */
+    #loading-page {
       display: none;
+      text-align: center;
+      padding: 50px 20px;
+      align-items: center;
+      justify-content: center;
       flex-direction: column;
       gap: 20px;
-      animation: fadeIn 0.4s ease-out;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
+    .spinner {
+      width: 56px;
+      height: 56px;
+      border: 5px solid var(--border-color);
+      border-top-color: var(--brand-accent);
+      border-radius: 50%;
+      animation: spin 0.9s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .loading-sub {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Result Page */
+    #result-page {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      animation: pageSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes pageSlide {
+      from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .gauge-card {
+    .result-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .back-btn {
+      background: transparent;
+      border: none;
+      color: var(--header-text);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.9;
+    }
+
+    .share-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: var(--header-text);
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .prob-display {
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -304,16 +432,39 @@
       gap: 12px;
     }
 
-    .prob-number {
-      font-size: 3rem;
+    .target-badge {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--brand-accent);
+      background: var(--bg-input);
+      padding: 6px 14px;
+      border-radius: 8px;
+    }
+
+    .date-info-badge {
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .status-badge {
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .prob-value {
+      font-size: 3.8rem;
       font-weight: 800;
-      margin: 8px 0;
+      letter-spacing: -1px;
+      line-height: 1;
     }
 
     .progress-bar-bg {
       width: 100%;
       height: 12px;
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--bg-input);
       border-radius: 6px;
       overflow: hidden;
     }
@@ -322,498 +473,753 @@
       height: 100%;
       width: 0%;
       border-radius: 6px;
-      transition: width 0.8s ease-out;
+      transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .status-badge {
-      display: inline-block;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 0.85rem;
+    .guide-text {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .factor-box {
+      width: 100%;
+      background: var(--bg-input);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-top: 6px;
+      text-align: left;
+    }
+
+    .factor-title {
+      font-size: 0.8rem;
       font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
     }
 
-    /* 대안 주차장 카드 */
-    .alt-section {
+    .factor-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.83rem;
+    }
+
+    .factor-item {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .alt-container {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
     .alt-card {
-      background: rgba(15, 23, 42, 0.4);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
       padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .alt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .alt-name {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .alt-meta {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .alt-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .action-btn:hover {
+      border-color: var(--brand-navy);
+    }
+
+    /* Modal Overlay & Settings Card */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 440px;
+      padding: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      animation: modalUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalUp {
+      from { transform: translateY(20px) scale(0.96); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
     }
 
-    .alt-info h4 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 4px;
+    .modal-header h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .alt-info p {
-      font-size: 0.8rem;
-      color: var(--text-sub);
-    }
-
-    .copy-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
-      color: var(--text-main);
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 0.8rem;
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
       cursor: pointer;
+      padding: 4px;
+    }
+
+    .setting-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .setting-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-secondary);
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .copy-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .theme-select-btn {
+      background: var(--bg-input);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .theme-select-btn.active {
+      border-color: var(--brand-navy);
+      background: rgba(37, 99, 235, 0.08);
+    }
+
+    .swatch {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .swatch-navy { background: linear-gradient(135deg, #ffffff 50%, #1e3a8a 50%); }
+    .swatch-green { background: linear-gradient(135deg, #ffffff 50%, #047857 50%); }
+    .swatch-dark { background: linear-gradient(135deg, #1f2937 50%, #111827 50%); }
+
+    .danger-btn {
+      width: 100%;
+      padding: 12px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .danger-btn:hover {
+      background: #ef4444;
+      color: #ffffff;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <div class="app-container">
+    <!-- Header -->
     <header>
-      <h1>스마트 주차 예측</h1>
-      <p>목적지를 검색하고 실시간 주차 가능성을 확인해보세요.</p>
+      <div class="brand-logo">
+        <i class="fa-solid fa-square-p"></i> PARK AI
+        <span class="region-badge">서울 전역</span>
+      </div>
+      <!-- Settings Gear Button -->
+      <button class="settings-btn" onclick="toggleSettingsModal()" title="앱 설정 및 테마">
+        <i class="fa-solid fa-gear"></i>
+      </button>
     </header>
 
-    <!-- [1단계] 장소 검색 및 선택 -->
-    <div class="card">
-      <div class="section-title">
-        <i class="fa-solid fa-magnifying-glass" style="color: var(--accent-blue);"></i>
-        1. 목적지 검색
-      </div>
-
-      <!-- 카테고리 태그 필터 -->
-      <div class="tag-container">
-        <button class="tag-btn active" onclick="filterCategory('all', this)">전체</button>
-        <button class="tag-btn" onclick="filterCategory('themePark', this)">🎡 테마파크/관광</button>
-        <button class="tag-btn" onclick="filterCategory('mall', this)">🛍️ 백화점/쇼핑몰</button>
-        <button class="tag-btn" onclick="filterCategory('hotspot', this)">🏙️ 핫플레이스</button>
-        <button class="tag-btn" onclick="filterCategory('hospital', this)">🏥 대형병원</button>
-      </div>
-
-      <!-- 실시간 검색 입력창 -->
-      <div class="search-wrapper">
-        <div class="search-input-box">
-          <i class="fa-solid fa-search search-icon"></i>
-          <input type="text" id="searchInput" placeholder="장소 검색 (예: 에버랜드, 더현대, 강남역, 성수동)..." oninput="handleSearch()">
+    <!-- STEP 1: Search Form Page -->
+    <div id="search-page" class="page-step">
+      <div class="card">
+        <div class="card-title">
+          <i class="fa-solid fa-magnifying-glass-location" style="color: var(--brand-navy);"></i>
+          목적지 및 조건 설정
         </div>
-      </div>
 
-      <!-- 검색 연관 결과 목록 -->
-      <div id="searchResults" class="search-results-list"></div>
+        <div class="search-box">
+          <i class="fa-solid fa-location-dot search-icon"></i>
+          <input type="text" id="placeInput" placeholder="서울 목적지 입력 (예: 성수동 연무장길, 강남역, 여의도 IFC몰)" onkeypress="if(event.key==='Enter') startPrediction()">
+          <button class="clear-btn" id="clearBtn" onclick="clearInput()"><i class="fa-solid fa-circle-xmark"></i></button>
+        </div>
 
-      <!-- 선택된 장소 표시 뷰 -->
-      <div id="selectedPlaceCard" class="selected-place-card">
-        <div class="selected-place-info">
-          <i class="fa-solid fa-location-dot"></i>
-          <div>
-            <strong id="selectedPlaceName" style="font-size: 1.05rem;">-</strong>
-            <div id="selectedPlaceCat" style="font-size: 0.75rem; color: var(--text-sub);">선택됨</div>
+        <div class="error-msg" id="errorMsg">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="errorText">오타가 있거나 존재하지 않는 장소입니다. 다시 입력해 주세요.</span>
+        </div>
+
+        <!-- Recent Search Chips -->
+        <div id="recentSection" style="display: none;">
+          <div class="chip-section-label"><i class="fa-solid fa-clock-rotate-left"></i> 최근 검색한 장소</div>
+          <div class="chip-container" id="recentChips"></div>
+        </div>
+
+        <div class="chip-section-label"><i class="fa-solid fa-fire"></i> 서울 인기 핫플레이스</div>
+        <div class="chip-container">
+          <span class="chip" onclick="quickFill('성수동 연무장길 팝업스토어')">📍 성수동 연무장길</span>
+          <span class="chip" onclick="quickFill('강남역 11번 출구 인근')">🏢 강남역 상권</span>
+          <span class="chip" onclick="quickFill('여의도 더현대 서울')">🛍️ 여의도 더현대</span>
+          <span class="chip" onclick="quickFill('홍대입구역 연남동 카페거리')">☕ 연남동 골목길</span>
+        </div>
+
+        <div class="filter-grid">
+          <div class="filter-group">
+            <label><i class="fa-regular fa-calendar-days"></i> 예측 날짜 [필수]</label>
+            <input type="date" id="dateInput">
+          </div>
+
+          <div class="filter-group">
+            <label><i class="fa-regular fa-clock"></i> 도착 시간 [필수]</label>
+            <select id="timeSelect">
+              <option value="09">오전 09:00 - 11:00</option>
+              <option value="12" selected>오후 12:00 - 14:00 (피크)</option>
+              <option value="15">오후 15:00 - 17:00</option>
+              <option value="18">오후 18:00 - 20:00 (퇴근/저녁)</option>
+              <option value="21">오후 21:00 이후</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label><i class="fa-solid fa-cloud-sun"></i> 예상 날씨 [선택]</label>
+            <select id="weatherSelect">
+              <option value="sunny" selected>맑음 ☀️</option>
+              <option value="rain">비 🌧️</option>
+              <option value="snow">눈 ❄️</option>
+              <option value="cloud">흐림 ☁️</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label><i class="fa-solid fa-car"></i> 차종 [선택]</label>
+            <select id="carSelect">
+              <option value="sedan" selected>승용차/세단</option>
+              <option value="compact">경차 (공영할인)</option>
+              <option value="suv">SUV / RV</option>
+              <option value="ev">전기차 (공영할인)</option>
+              <option value="large">대형 / 승합</option>
+            </select>
           </div>
         </div>
-        <span style="font-size: 0.8rem; color: var(--accent-blue); font-weight: 600;">선택 완료 ✓</span>
+
+        <button class="submit-btn" onclick="startPrediction()">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> 주차 가능성 AI 예측
+        </button>
       </div>
     </div>
 
-    <!-- [2단계] 방문 조건 입력 -->
-    <div class="card">
-      <div class="section-title">
-        <i class="fa-solid fa-calendar-days" style="color: var(--accent-blue);"></i>
-        2. 방문 조건 설정
-      </div>
-
-      <!-- 날짜 및 시간 선택 -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div class="form-group">
-          <label for="dateInput">방문 날짜</label>
-          <input type="date" id="dateInput">
-        </div>
-        <div class="form-group">
-          <label for="timeSelect">도착 시간대</label>
-          <select id="timeSelect">
-            <option value="09">오전 09:00 - 11:00</option>
-            <option value="12" selected>오후 12:00 - 14:00</option>
-            <option value="15">오후 15:00 - 17:00</option>
-            <option value="18">오후 18:00 - 20:00</option>
-            <option value="21">오후 21:00 이후</option>
-          </select>
+    <!-- STEP 2: Loading Transition Page -->
+    <div id="loading-page" class="card">
+      <div class="spinner"></div>
+      <div>
+        <div class="loading-title" id="loadingStatusText">지정일 AI 데이터 패턴 분석 중...</div>
+        <div class="loading-sub" style="margin-top: 6px;">
+          해당 요일/시간대의 과거 혼잡도 및 이벤트 통계를 계산 중입니다.
         </div>
       </div>
-
-      <!-- 날씨 선택 -->
-      <div class="form-group">
-        <label>예상 날씨</label>
-        <div class="weather-grid">
-          <button class="weather-btn active" onclick="selectWeather('sunny', this)">
-            <i class="fa-solid fa-sun"></i> 맑음
-          </button>
-          <button class="weather-btn" onclick="selectWeather('rain', this)">
-            <i class="fa-solid fa-cloud-rain"></i> 비
-          </button>
-          <button class="weather-btn" onclick="selectWeather('snow', this)">
-            <i class="fa-regular fa-snowflake"></i> 눈
-          </button>
-          <button class="weather-btn" onclick="selectWeather('cloud', this)">
-            <i class="fa-solid fa-cloud"></i> 흐림
-          </button>
-        </div>
-      </div>
-
-      <button class="submit-btn" onclick="calculateProbability()">
-        주차 가능성 계산하기
-      </button>
     </div>
 
-    <!-- [3단계] 예측 결과 출력 -->
-    <div id="result-section">
-      <div class="card gauge-card">
-        <span class="status-badge" id="statusBadge">계산 중...</span>
-        <div class="prob-number" id="probText">0%</div>
+    <!-- STEP 3: Result Page -->
+    <div id="result-page" class="page-step">
+      <div class="result-top-bar">
+        <button class="back-btn" onclick="goToSearchPage()">
+          <i class="fa-solid fa-chevron-left"></i> 다른 장소 다시 검색
+        </button>
+        <button class="share-btn" onclick="shareResult()">
+          <i class="fa-solid fa-arrow-up-from-bracket"></i> 결과 공유
+        </button>
+      </div>
+
+      <div class="card prob-display">
+        <div class="target-badge" id="targetPlaceBadge">성수동 연무장길</div>
+        <div class="date-info-badge" id="selectedDateBadge">📅 2026.10.03 (토) 오후 12:00</div>
+        
+        <span class="status-badge" id="statusBadge">-</span>
+        <div class="prob-value" id="probText">0%</div>
+        
         <div class="progress-bar-bg">
           <div class="progress-bar-fill" id="progressBar"></div>
         </div>
-        <p id="resultMsg" style="color: var(--text-sub); font-size: 0.9rem; margin-top: 4px;"></p>
+        <p class="guide-text" id="guideText">-</p>
+
+        <div class="factor-box">
+          <div class="factor-title"><i class="fa-solid fa-chart-pie"></i> AI 예측 가중치 요인</div>
+          <div class="factor-list">
+            <div class="factor-item"><span>• 장소 기본 혼잡도:</span><strong id="factorBase">-</strong></div>
+            <div class="factor-item"><span>• 요일/주말 보정:</span><strong id="factorDay">-</strong></div>
+            <div class="factor-item"><span>• 시간대/피크 보정:</span><strong id="factorTime">-</strong></div>
+            <div class="factor-item"><span>• 날씨 영향도:</span><strong id="factorWeather">-</strong></div>
+          </div>
+        </div>
       </div>
 
-      <!-- 대안 주차장 섹션 (확률 50% 이하 시 자동 노출) -->
-      <div class="card alt-section" id="altSection" style="display: none;">
-        <div class="section-title" style="color: var(--warning-orange);">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-          만차 위험! 인근 대체 주차장 추천
+      <!-- Alternatives Section -->
+      <div class="card" id="altCardSection" style="display: none;">
+        <div class="card-title" style="color: var(--status-danger-bar);">
+          <i class="fa-solid fa-shield-halved"></i>
+          AI 추천 인근 대안 주차장 (반경 500m)
         </div>
-        <div id="altList"></div>
+        <div class="alt-container" id="altList"></div>
       </div>
     </div>
 
   </div>
 
+  <!-- Settings Modal Dialog -->
+  <div class="modal-overlay" id="settingsModal" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-sliders"></i> 앱 설정</h3>
+        <button class="modal-close-btn" onclick="toggleSettingsModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Theme Selector -->
+      <div class="setting-section">
+        <div class="setting-label"><i class="fa-solid fa-palette"></i> 화면 스타일 테마</div>
+        <div class="theme-grid">
+          <button class="theme-select-btn" id="btn-navy" onclick="setTheme('navy')">
+            <span class="swatch swatch-navy"></span>
+            <span>흰색 / 남색</span>
+          </button>
+          <button class="theme-select-btn" id="btn-green" onclick="setTheme('green')">
+            <span class="swatch swatch-green"></span>
+            <span>흰색 / 초록색</span>
+          </button>
+          <button class="theme-select-btn" id="btn-dark" onclick="setTheme('dark')">
+            <span class="swatch swatch-dark"></span>
+            <span>검은색 (다크)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Clear History -->
+      <div class="setting-section" style="margin-top: 8px;">
+        <div class="setting-label"><i class="fa-solid fa-trash-can"></i> 데이터 관리</div>
+        <button class="danger-btn" onclick="clearAllHistory()">
+          <i class="fa-solid fa-broom"></i> 최근 검색 기록 전체 삭제
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // 1. 대용량 데이터베이스 (서울 및 경기 주요 스팟 20선)
-    const placesDatabase = [
-      // 테마파크/관광지
-      { 
-        id: "tp1", category: "themePark", catLabel: "테마파크/관광", name: "에버랜드", baseProb: 75,
-        alts: [
-          { name: "포곡읍 공영주차장", time: "도보 12분", fee: "무료", addr: "경기 용인시 처인구 포곡읍 포곡로 212" },
-          { name: "둔전역 공영주차장", time: "경전철 2정거장", fee: "1,000원/시간", addr: "경기 용인시 처인구 포곡읍 둔전리 110" }
-        ]
-      },
-      { 
-        id: "tp2", category: "themePark", catLabel: "테마파크/관광", name: "롯데월드 (잠실)", baseProb: 40,
-        alts: [
-          { name: "잠실역 환승공영주차장", time: "도보 5분", fee: "4,800원/시간", addr: "서울 송파구 올림픽로 300" },
-          { name: "송파구청 주차장", time: "도보 8분", fee: "3,000원/시간", addr: "서울 송파구 올림픽로 326" }
-        ]
-      },
-      { 
-        id: "tp3", category: "themePark", catLabel: "테마파크/관광", name: "서울랜드 / 국립현대미술관", baseProb: 65,
-        alts: [
-          { name: "대공원역 대형주차장", time: "도보 10분", fee: "4,000원/일", addr: "경기 과천시 대공원광장로 102" }
-        ]
-      },
-      { 
-        id: "tp4", category: "themePark", catLabel: "테마파크/관광", name: "경복궁 / 광화문", baseProb: 35,
-        alts: [
-          { name: "열린송현 녹지광장 주차장", time: "도보 7분", fee: "3,000원/시간", addr: "서울 종로구 송현동 48-9" },
-          { name: "종로타워 주차장", time: "도보 10분", fee: "6,000원/시간", addr: "서울 종로구 종로 51" }
-        ]
-      },
-      { 
-        id: "tp5", category: "themePark", catLabel: "테마파크/관광", name: "남산서울타워 (케이블카)", baseProb: 30,
-        alts: [
-          { name: "남산동 공영주차장", time: "도보 8분", fee: "3,000원/시간", addr: "서울 중구 퇴계로20길 24" },
-          { name: "시그너스빌 주차장", time: "도보 10분", fee: "4,000원/시간", addr: "서울 중구 퇴계로 100" }
-        ]
-      },
+    let currentPredictionData = null;
 
-      // 백화점/쇼핑몰
-      { 
-        id: "ml1", category: "mall", catLabel: "백화점/쇼핑몰", name: "더현대 서울 (여의도)", baseProb: 30,
-        alts: [
-          { name: "여의도 파크원 주차장", time: "도보 3분", fee: "6,000원/시간", addr: "서울 영등포구 여의대로 108" },
-          { name: "여의도 한강공원 3주차장", time: "도보 10분", fee: "2,000원/시간", addr: "서울 영등포구 여의동로 280" }
-        ]
-      },
-      { 
-        id: "ml2", category: "mall", catLabel: "백화점/쇼핑몰", name: "스타필드 코엑스몰 (삼성역)", baseProb: 45,
-        alts: [
-          { name: "탄천 종합운동장 주차장", time: "도보 12분", fee: "1,200원/시간", addr: "서울 송파구 탄천동로 36" },
-          { name: "봉은사 주차장", time: "도보 6분", fee: "3,000원/시간", addr: "서울 강남구 봉은사로 531" }
-        ]
-      },
-      { 
-        id: "ml3", category: "mall", catLabel: "백화점/쇼핑몰", name: "신세계백화점 강남점", baseProb: 35,
-        alts: [
-          { name: "반포천 복개 공영주차장", time: "도보 7분", fee: "3,000원/시간", addr: "서울 서초구 반포동 118-3" },
-          { name: "고속터미널 광장주차장", time: "도보 5분", fee: "4,000원/시간", addr: "서울 서초구 신반포로 194" }
-        ]
-      },
-      { 
-        id: "ml4", category: "mall", catLabel: "백화점/쇼핑몰", name: "롯데월드몰 (잠실)", baseProb: 35,
-        alts: [
-          { name: "잠실역 환승주차장", time: "도보 4분", fee: "4,800원/시간", addr: "서울 송파구 올림픽로 300" }
-        ]
-      },
-      { 
-        id: "ml5", category: "mall", catLabel: "백화점/쇼핑몰", name: "타임스퀘어 (영등포)", baseProb: 40,
-        alts: [
-          { name: "영등포본동 공영주차장", time: "도보 8분", fee: "1,500원/시간", addr: "서울 영등포구 영등포로 212" }
-        ]
-      },
+    // Date Picker Init
+    const dateInput = document.getElementById('dateInput');
+    const todayStr = new Date().toISOString().split('T')[0];
+    dateInput.value = todayStr;
+    dateInput.min = todayStr;
 
-      // 서울 핫플레이스
-      { 
-        id: "hs1", category: "hotspot", catLabel: "핫플레이스", name: "성수동 연무장길", baseProb: 25,
-        alts: [
-          { name: "성수2가1동 공영주차장", time: "도보 6분", fee: "1,200원/시간", addr: "서울 성동구 성수이로 118" },
-          { name: "뚝섬 유원지 주차장", time: "도보 12분", fee: "1,000원/시간", addr: "서울 성동구 자양동 704" }
-        ]
-      },
-      { 
-        id: "hs2", category: "hotspot", catLabel: "핫플레이스", name: "강남역 거리", baseProb: 25,
-        alts: [
-          { name: "역삼문화공원 주차장", time: "도보 8분", fee: "3,600원/시간", addr: "서울 강남구 테헤란로7길 21" },
-          { name: "플래티넘 타워 주차장", time: "도보 4분", fee: "5,000원/시간", addr: "서울 서초구 서초대로397" }
-        ]
-      },
-      { 
-        id: "hs3", category: "hotspot", catLabel: "핫플레이스", name: "홍대 버스킹거리 / 걷고싶은거리", baseProb: 30,
-        alts: [
-          { name: "서교동 공영주차장", time: "도보 5분", fee: "4,800원/시간", addr: "서울 마포구 어울마당로 123" },
-          { name: "동교동 삼거리 주차장", time: "도보 8분", fee: "3,000원/시간", addr: "서울 마포구 양화로 183" }
-        ]
-      },
-      { 
-        id: "hs4", category: "hotspot", catLabel: "핫플레이스", name: "명동 거리", baseProb: 35,
-        alts: [
-          { name: "남산동 공영주차장", time: "도보 6분", fee: "3,000원/시간", addr: "서울 중구 퇴계로20길 24" }
-        ]
-      },
-      { 
-        id: "hs5", category: "hotspot", catLabel: "핫플레이스", name: "여의도 한강공원", baseProb: 30,
-        alts: [
-          { name: "여의도역 빌딩 민영주차장", time: "도보 10분", fee: "4,000원/시간", addr: "서울 영등포구 여의나루로 60" }
-        ]
-      },
-      { 
-        id: "hs6", category: "hotspot", catLabel: "핫플레이스", name: "압구정 로데오 / 도산공원", baseProb: 20,
-        alts: [
-          { name: "도산공원 노상 공영주차장", time: "도보 3분", fee: "4,000원/시간", addr: "서울 강남구 도산대로45길 20" }
-        ]
-      },
+    // Settings Modal Toggle
+    function toggleSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      modal.classList.toggle('active');
+    }
 
-      // 대형병원 / 기타
-      { 
-        id: "hp1", category: "hospital", catLabel: "대형병원", name: "서울아산병원 (풍납동)", baseProb: 50,
-        alts: [
-          { name: "풍납동 공영주차장", time: "도보 10분", fee: "1,200원/시간", addr: "서울 송파구 풍납동 252" }
-        ]
-      },
-      { 
-        id: "hp2", category: "hospital", catLabel: "대형병원", name: "신촌 세브란스병원", baseProb: 50,
-        alts: [
-          { name: "창천교회 주차장", time: "도보 6분", fee: "4,000원/시간", addr: "서울 서대문구 연세로5가길 3" }
-        ]
-      },
-      { 
-        id: "hp3", category: "hospital", catLabel: "대형병원", name: "삼성서울병원 (일원동)", baseProb: 55,
-        alts: [
-          { name: "일원역 탄천 공영주차장", time: "도보 10분", fee: "1,200원/시간", addr: "서울 강남구 일원동 4-12" }
-        ]
-      },
-      { 
-        id: "hp4", category: "hospital", catLabel: "대형병원", name: "서울대학교병원 (혜화동)", baseProb: 45,
-        alts: [
-          { name: "대학로 방송통신대 주차장", time: "도보 7분", fee: "3,000원/시간", addr: "서울 종로구 대학로 86" }
-        ]
+    function closeModalOnBackdrop(e) {
+      if (e.target.id === 'settingsModal') {
+        toggleSettingsModal();
       }
-    ];
-
-    // 변수 상태
-    let selectedCategory = 'all';
-    let selectedPlaceObj = null;
-    let selectedWeather = 'sunny';
-
-    // 초기화
-    window.onload = () => {
-      document.getElementById('dateInput').value = new Date().toISOString().substring(0, 10);
-      renderSearchResults(); // 처음에는 전체/기본 데이터 출력
-    };
-
-    // 카테고리 태그 필터 변경
-    function filterCategory(category, btnEl) {
-      selectedCategory = category;
-      document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('active'));
-      btnEl.classList.add('active');
-      renderSearchResults();
     }
 
-    // 실시간 검색 처리
-    function handleSearch() {
-      renderSearchResults();
+    // Theme Selector System
+    function setTheme(themeName) {
+      document.documentElement.setAttribute('data-theme', themeName);
+      localStorage.setItem('parkai_theme', themeName);
+
+      document.querySelectorAll('.theme-select-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`btn-${themeName}`);
+      if (activeBtn) activeBtn.classList.add('active');
     }
 
-    // 검색 결과 목록 그리기
-    function renderSearchResults() {
-      const query = document.getElementById('searchInput').value.trim().toLowerCase();
-      const resultsContainer = document.getElementById('searchResults');
-      
-      // 검색어 및 카테고리 필터링
-      const filtered = placesDatabase.filter(item => {
-        const matchesCategory = (selectedCategory === 'all' || item.category === selectedCategory);
-        const matchesQuery = item.name.toLowerCase().includes(query) || item.catLabel.includes(query);
-        return matchesCategory && matchesQuery;
-      });
+    // Initialize Saved Theme
+    const savedTheme = localStorage.getItem('parkai_theme') || 'navy';
+    setTheme(savedTheme);
 
-      resultsContainer.innerHTML = '';
+    // Search History Clear
+    function clearAllHistory() {
+      if (confirm('저장된 최근 검색 기록을 모두 지우시겠습니까?')) {
+        localStorage.removeItem('parkai_recent');
+        renderRecentChips();
+        toggleSettingsModal();
+        alert('검색 기록이 모두 삭제되었습니다.');
+      }
+    }
 
-      if (filtered.length === 0) {
-        resultsContainer.innerHTML = `<div style="padding:16px; text-align:center; color:var(--text-sub); font-size:0.85rem;">검색 결과가 없습니다.</div>`;
+    // Input Clear
+    const placeInput = document.getElementById('placeInput');
+    const clearBtn = document.getElementById('clearBtn');
+
+    placeInput.addEventListener('input', () => {
+      clearBtn.style.display = placeInput.value ? 'block' : 'none';
+      hideError();
+    });
+
+    function clearInput() {
+      placeInput.value = '';
+      clearBtn.style.display = 'none';
+      placeInput.focus();
+    }
+
+    function quickFill(text) {
+      placeInput.value = text;
+      clearBtn.style.display = 'block';
+      hideError();
+      startPrediction();
+    }
+
+    function showError(msg) {
+      const errorMsg = document.getElementById('errorMsg');
+      const errorText = document.getElementById('errorText');
+      errorText.textContent = msg;
+      errorMsg.style.display = 'flex';
+      placeInput.focus();
+    }
+
+    function hideError() {
+      document.getElementById('errorMsg').style.display = 'none';
+    }
+
+    // LocalStorage Recent Search Management
+    function saveRecentSearch(place) {
+      let recent = JSON.parse(localStorage.getItem('parkai_recent') || '[]');
+      recent = recent.filter(item => item !== place);
+      recent.unshift(place);
+      if (recent.length > 4) recent.pop();
+      localStorage.setItem('parkai_recent', JSON.stringify(recent));
+      renderRecentChips();
+    }
+
+    function renderRecentChips() {
+      const recent = JSON.parse(localStorage.getItem('parkai_recent') || '[]');
+      const container = document.getElementById('recentChips');
+      const section = document.getElementById('recentSection');
+
+      if (recent.length === 0) {
+        section.style.display = 'none';
         return;
       }
 
-      filtered.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'search-item';
-        div.innerHTML = `
-          <span class="search-item-title">${item.name}</span>
-          <span class="search-item-cat">${item.catLabel}</span>
-        `;
-        div.onclick = () => selectPlace(item);
-        resultsContainer.appendChild(div);
+      section.style.display = 'block';
+      container.innerHTML = '';
+      recent.forEach(place => {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.textContent = `🕒 ${place}`;
+        chip.onclick = () => quickFill(place);
+        container.appendChild(chip);
       });
     }
 
-    // 장소 선택 이벤트
-    function selectPlace(item) {
-      selectedPlaceObj = item;
+    // Validation Logic
+    function validateLocationInput(place) {
+      const trimmed = place.trim();
       
-      // UI 업데이트
-      document.getElementById('selectedPlaceName').textContent = item.name;
-      document.getElementById('selectedPlaceCat').textContent = item.catLabel;
-      document.getElementById('selectedPlaceCard').style.display = 'flex';
+      if (!trimmed) {
+        return { valid: false, message: '목적지를 입력해 주세요.' };
+      }
+
+      const invalidPattern = /^[ㄱ-ㅎㅏ-ㅣ]+$/;
+      const isEnglishSmash = /^[a-zA-Z]{1,4}$/.test(trimmed);
+      if (invalidPattern.test(trimmed) || isEnglishSmash || trimmed.length < 2) {
+        return { valid: false, message: '입력하신 장소를 찾을 수 없습니다. 올바른 장소명이나 오타를 확인해 주세요.' };
+      }
+
+      const otherCities = ['부산', '대구', '인천', '광주', '대전', '울산', '제주', '수원', '성남', '용인', '고양', '창원', '전주', '천안'];
+      const isOtherCity = otherCities.some(city => trimmed.includes(city));
+      const hasSeoulKeyword = ['서울', '강남', '성수', '여의도', '홍대', '신촌', '종로'].some(k => trimmed.includes(k));
       
-      // 검색창 텍스트 변경
-      document.getElementById('searchInput').value = item.name;
+      if (isOtherCity && !hasSeoulKeyword) {
+        return { valid: false, message: '현재 PARK AI는 서울 시내 지역 서비스만 제공합니다. 서울 내 목적지를 입력해 주세요.' };
+      }
+
+      const seoulKeywords = [
+        '서울', '강남', '서초', '송파', '마포', '용산', '성동', '종로', '중구', '영등포', '관악', '동작', 
+        '강동', '광진', '동대문', '중랑', '성북', '강북', '도봉', '노원', '은평', '서대문', '양천', '구로', '금천',
+        '성수', '연남', '연무장', '홍대', '신촌', '여의도', '더현대', '광화문', '명동', '을지로', '이태원', '한남', 
+        '압구정', '청담', '가로수길', '신사', '코엑스', '잠실', '롯데월드', '타임스퀘어', 'DDP', '대학로', '혜화', 
+        '신림', '서울대', '건대', '왕십리', '상암', '목동', '고속터미널', '파미에', 'IFC', '역', '동', '길', '백화점', 
+        '타워', '마트', '카페', '시장', '공원', '병원', '빌딩', '스토어', '팝업', '주차장', '아울렛', '몰'
+      ];
+
+      const isValidLocation = seoulKeywords.some(keyword => trimmed.includes(keyword));
+
+      if (!isValidLocation) {
+        return { 
+          valid: false, 
+          message: `'${trimmed}'(은)는 존재하지 않거나 서울 내에서 찾을 수 없는 장소입니다. 오타가 없는지 확인 후 다시 입력해 주세요.` 
+        };
+      }
+
+      return { valid: true };
     }
 
-    // 날씨 선택
-    function selectWeather(weather, btnElement) {
-      selectedWeather = weather;
-      document.querySelectorAll('.weather-btn').forEach(btn => btn.classList.remove('active'));
-      btnElement.classList.add('active');
+    function showStep(stepId) {
+      document.getElementById('search-page').style.display = 'none';
+      document.getElementById('loading-page').style.display = 'none';
+      document.getElementById('result-page').style.display = 'none';
+
+      document.getElementById(stepId).style.display = (stepId === 'loading-page') ? 'flex' : 'flex';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // [계산 로직]
-    function calculateProbability() {
-      if (!selectedPlaceObj) {
-        alert('목적지를 검색창에서 선택해주세요!');
+    function goToSearchPage() {
+      showStep('search-page');
+    }
+
+    function startPrediction() {
+      const place = placeInput.value;
+      const validation = validateLocationInput(place);
+
+      if (!validation.valid) {
+        showError(validation.message);
         return;
       }
 
-      const dateVal = new Date(document.getElementById('dateInput').value);
+      hideError();
+      saveRecentSearch(place.trim());
+
+      showStep('loading-page');
+
+      const statusText = document.getElementById('loadingStatusText');
+      statusText.textContent = '지정일 과거 통계 및 요일 데이터 분석 중...';
+
+      setTimeout(() => {
+        statusText.textContent = '목적지 주변 주차장 입출차 패턴 계산 중...';
+      }, 700);
+
+      setTimeout(() => {
+        calculateAndRenderResult(place.trim());
+        showStep('result-page');
+      }, 1400);
+    }
+
+    function calculateAndRenderResult(place) {
+      const selectedDateVal = document.getElementById('dateInput').value;
       const timeVal = parseInt(document.getElementById('timeSelect').value);
+      const weatherVal = document.getElementById('weatherSelect').value;
 
-      let probability = selectedPlaceObj.baseProb;
+      const dateObj = new Date(selectedDateVal);
+      const dayOfWeek = dateObj.getDay();
+      const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+      const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
 
-      // 1. 주말 변수 (-20%)
-      const day = dateVal.getDay();
-      if (day === 0 || day === 6) {
-        probability -= 20;
+      let baseProb = 65;
+      if (place.includes('성수') || place.includes('연남') || place.includes('홍대') || place.includes('카페') || place.includes('팝업')) {
+        baseProb = 35;
+      } else if (place.includes('강남') || place.includes('여의도') || place.includes('광화문') || place.includes('오피스')) {
+        baseProb = (timeVal >= 9 && timeVal <= 18) ? 30 : 75;
+      } else if (place.includes('더현대') || place.includes('몰') || place.includes('백화점')) {
+        baseProb = 45;
       }
 
-      // 2. 피크 시간대 (12시~15시) (-15%)
-      if (timeVal >= 12 && timeVal <= 15) {
-        probability -= 15;
-      }
+      let dayImpact = isWeekend ? -18 : +5;
 
-      // 3. 날씨 영향
-      if (selectedWeather === 'rain' || selectedWeather === 'snow') {
-        if (selectedPlaceObj.category === 'mall') probability -= 15; // 실내 몰 몰림
-        if (selectedPlaceObj.category === 'themePark') probability += 15; // 테마파크 감소
-      }
+      let timeImpact = 0;
+      if (timeVal >= 12 && timeVal <= 15) timeImpact = -15;
+      else if (timeVal >= 18 && timeVal <= 20) timeImpact = -10;
+      else if (timeVal >= 21) timeImpact = +20;
 
-      // 최소 10% ~ 최대 95% 보정
-      probability = Math.max(10, Math.min(95, probability));
+      let weatherImpact = (weatherVal === 'rain' || weatherVal === 'snow') ? -10 : 0;
 
-      displayResult(probability, selectedPlaceObj);
-    }
+      let finalProb = Math.max(12, Math.min(92, baseProb + dayImpact + timeImpact + weatherImpact));
+      
+      const formattedDateText = `📅 ${selectedDateVal} (${dayNames[dayOfWeek]}) ${timeVal}:00 경 도착`;
+      currentPredictionData = { place, prob: finalProb, dateText: formattedDateText };
 
-    // 결과 UI 출력
-    function displayResult(prob, place) {
-      const resultSection = document.getElementById('result-section');
+      document.getElementById('targetPlaceBadge').textContent = place;
+      document.getElementById('selectedDateBadge').textContent = formattedDateText;
+
+      const badge = document.getElementById('statusBadge');
       const probText = document.getElementById('probText');
-      const progressBar = document.getElementById('progressBar');
-      const statusBadge = document.getElementById('statusBadge');
-      const resultMsg = document.getElementById('resultMsg');
-      const altSection = document.getElementById('altSection');
+      const bar = document.getElementById('progressBar');
+      const guide = document.getElementById('guideText');
+      const altSection = document.getElementById('altCardSection');
       const altList = document.getElementById('altList');
 
-      resultSection.style.display = 'flex';
-      resultSection.scrollIntoView({ behavior: 'smooth' });
+      probText.textContent = finalProb + '%';
+      bar.style.width = finalProb + '%';
 
-      probText.textContent = prob + '%';
-      progressBar.style.width = prob + '%';
+      document.getElementById('factorBase').textContent = `기본 예측치 ${baseProb}%`;
+      document.getElementById('factorDay').textContent = `${isWeekend ? '주말 혼잡 (-18%)' : '평일 (+5%)'}`;
+      document.getElementById('factorTime').textContent = `${timeImpact >= 0 ? '+' : ''}${timeImpact}%`;
+      document.getElementById('factorWeather').textContent = `${weatherImpact >= 0 ? '+' : ''}${weatherImpact}%`;
 
-      if (prob >= 70) {
-        progressBar.style.backgroundColor = 'var(--safe-green)';
-        statusBadge.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
-        statusBadge.style.color = 'var(--safe-green)';
-        statusBadge.textContent = '원활';
-        resultMsg.textContent = '주차 공간이 넉넉할 것으로 예상됩니다.';
+      if (finalProb >= 70) {
+        badge.style.backgroundColor = 'var(--status-safe-bg)';
+        badge.style.color = 'var(--status-safe-text)';
+        badge.textContent = '🟢 주차 원활 (안전)';
+        bar.style.backgroundColor = 'var(--status-safe-bar)';
+        guide.innerHTML = '해당 일자/시간대에 주변 주차 공간 여유가 예상됩니다.<br>편안하게 방문하세요!';
         altSection.style.display = 'none';
-      } else if (prob > 50) {
-        progressBar.style.backgroundColor = 'var(--warning-orange)';
-        statusBadge.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
-        statusBadge.style.color = 'var(--warning-orange)';
-        statusBadge.textContent = '보통';
-        resultMsg.textContent = '주차가 가능하지만 약간의 대기가 발생할 수 있습니다.';
+      } else if (finalProb >= 51) {
+        badge.style.backgroundColor = 'var(--status-warn-bg)';
+        badge.style.color = 'var(--status-warn-text)';
+        badge.textContent = '🟡 주차 보통 (약간 혼잡)';
+        bar.style.backgroundColor = 'var(--status-warn-bar)';
+        guide.innerHTML = '해당 요일 시간대는 진입 대기가 발생할 수 있습니다.<br>도착 예정 시간보다 15분 일찍 출발 권장합니다.';
         altSection.style.display = 'none';
       } else {
-        // 50% 이하: 만차 위험 경고 및 대안 출력
-        progressBar.style.backgroundColor = 'var(--danger-red)';
-        statusBadge.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
-        statusBadge.style.color = 'var(--danger-red)';
-        statusBadge.textContent = '만차 위험';
-        resultMsg.textContent = '주차 공간이 부족할 확률이 높습니다! 인근 대안 주차장을 이용하세요.';
-        
+        badge.style.backgroundColor = 'var(--status-danger-bg)';
+        badge.style.color = 'var(--status-danger-text)';
+        badge.textContent = '🔴 만차 위험 (대안 필수)';
+        bar.style.backgroundColor = 'var(--status-danger-bar)';
+        guide.innerHTML = `<b>'${place}'</b> 주변은 해당 일자/시간에 만차일 확률이 매우 높습니다.<br>아래 AI 추천 인근 대안 주차장을 미리 확인하세요!`;
+
+        const mockAlternatives = [
+          {
+            name: `${place} 인근 공영주차장`,
+            dist: '도보 4분 (280m)',
+            fee: '500원 / 10분 (공영할인)',
+            addr: `서울시 ${place} 인근 공영주차장`
+          },
+          {
+            name: `근묵 민영 타워주차장`,
+            dist: '도보 7분 (450m)',
+            fee: '1,000원 / 10분',
+            addr: `서울시 ${place} 인근 민영주차장`
+          }
+        ];
+
         altList.innerHTML = '';
-        place.alts.forEach(alt => {
+        mockAlternatives.forEach(alt => {
           const card = document.createElement('div');
           card.className = 'alt-card';
           card.innerHTML = `
-            <div class="alt-info">
-              <h4>${alt.name}</h4>
-              <p>${alt.time} • 요금: ${alt.fee}</p>
+            <div class="alt-header">
+              <div>
+                <div class="alt-name">${alt.name}</div>
+                <div class="alt-meta">🚶 ${alt.dist}  |  💳 ${alt.fee}</div>
+              </div>
             </div>
-            <button class="copy-btn" onclick="copyAddress('${alt.addr}')">
-              <i class="fa-regular fa-copy"></i> 주소 복사
-            </button>
+            <div class="alt-actions">
+              <button class="action-btn" onclick="openMapApp('${alt.addr}', 'naver')">
+                <i class="fa-solid fa-map-location-dot" style="color:#03cf5d;"></i> 네이버 지도
+              </button>
+              <button class="action-btn" onclick="openMapApp('${alt.addr}', 'kakao')">
+                <i class="fa-solid fa-comment" style="color:#fee500;"></i> 카카오맵
+              </button>
+            </div>
           `;
           altList.appendChild(card);
         });
-        altSection.style.display = 'flex';
+
+        altSection.style.display = 'block';
       }
     }
 
-    // 주소 복사
-    function copyAddress(addr) {
-      navigator.clipboard.writeText(addr).then(() => {
-        alert('주소가 복사되었습니다:\n' + addr);
+    function shareResult() {
+      if (!currentPredictionData) return;
+      const shareText = `[PARK AI 주차 예측 리포트]\n📍 목적지: ${currentPredictionData.place}\n${currentPredictionData.dateText}\n📊 주차 가능 확률: ${currentPredictionData.prob}%\nPARK AI에서 서울 주차 가능성을 미리 확인해 보세요!`;
+      
+      navigator.clipboard.writeText(shareText).then(() => {
+        alert('예측 결과가 클립보드에 복사되었습니다!\n원하는 곳에 공유해 보세요.');
       });
     }
+
+    function openMapApp(addr, app) {
+      if (app === 'naver') {
+        window.open(`https://map.naver.com/v5/search/${encodeURIComponent(addr)}`, '_blank');
+      } else if (app === 'kakao') {
+        window.open(`https://map.kakao.com/?q=${encodeURIComponent(addr)}`, '_blank');
+      }
+    }
+
+    // Initialize Recent Chips on Load
+    renderRecentChips();
   </script>
 </body>
 </html>
